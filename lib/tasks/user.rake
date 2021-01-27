@@ -7,11 +7,11 @@ namespace :user do
     end
 
     def csv
-      @attributes = @model.column_names
+      attributes = @model.column_names
       CSV.generate(headers: true) do |csv|
-        csv << @attributes
+        csv << attributes
         @model.all.find_each do |user|
-          csv << @attributes.map { |attr| user.send(attr) }
+          csv << attributes.map { |attr| user.send(attr) }
         end
       end
     end
