@@ -1,48 +1,49 @@
 class BlogApi::V1::Posts < Grape::API
-  helpers do
-    def declared_params
-      declared(params, include_missing: false)
-    end
-  end
+  helpers BlogApi::V1::Helpers::General, BlogApi::V1::Helpers::PostParams
 
-  namespace ':user_id/posts' do
-    params do
-      requires :id
-      requires :user_id
-      optional :title, type: String
-      optional :body, type: String
+  namespace :posts do
+    desc 'Published posts.'
+    get ':user_id' do
+      posts = Post.published
+      present posts, with: BlogApi::V1::Entities::Posts
     end
 
-    get ':id' do
-      post = User.find(params[:user_id]).posts.published
+    desc 'User specific post.'
+    params { use :shared }
+    get ':user_id/:post_id' do
+      post = User.find(declared_params[:user_id]).posts.find(declared_params[:post_id])
       present post, with: BlogApi::V1::Entities::Posts
     end
 
-    post do
-      params do
-        requires :user_id
-        requires :title, type: String
-        requires :body, type: String
-      end
-      user = User.find(params[:user_id])
-      user.posts.create({ title:params[:title], body:params[:body]})
+    desc 'Create post.'
+    params { use :create_post }
+    post ':user_id' do
+      declared_params[:image_url].present? ? image : no_image
     end
 
-    post ':id/publish' do
-      User.find(params[:user_id]).posts.find(params[:id]).publish
+    desc 'Publish post.'
+    params { use :shared }
+    post ':user_id/:post_id/publish' do
+      User.find(declared_params[:user_id]).posts.find(declared_params[:post_id]).publish
     end
 
-    post ':id/unpublish' do
-      User.find(params[:user_id]).posts.find(params[:id]).unpublish
+    desc 'Unpublish post.'
+    params { use :shared }
+    post ':user_id/:post_id/unpublish' do
+      User.find(declared_params[:user_id]).posts.find(declared_params[:post_id]).unpublish
     end
 
-    patch ':id' do
-      post = User.find(params[:user_id]).posts.find(params[:id])
-      post.update(declared_params)
+    desc 'Update post.'
+    params { use :update_post }
+    patch ':user_id/:post_id' do
+      post = User.find(declared_params[:user_id]).posts.find(declared_params[:post_id])
+      post.update(declared_params.except(:post_id, :user_id))
     end
 
-    delete ':id' do
-      User.find(params[:user_id]).posts.find(params[:id]).destroy
+    desc 'Delete post.'
+    params { use :shared }
+    delete ':user_id/:post_id' do
+      User.find(declared_params[:user_id]).posts.find(declared_params[:post_id]).destroy
     end
   end
 end
