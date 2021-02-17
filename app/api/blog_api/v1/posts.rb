@@ -3,8 +3,9 @@ class BlogApi::V1::Posts < Grape::API
 
   namespace :posts do
     desc 'Published posts.'
+    params { use :published }
     get ':user_id' do
-      posts = Post.published
+      posts = User.find(declared_params[:user_id]).posts.published
       present posts, with: BlogApi::V1::Entities::Posts
     end
 
@@ -18,7 +19,8 @@ class BlogApi::V1::Posts < Grape::API
     desc 'Create post.'
     params { use :create_post }
     post ':user_id' do
-      declared_params[:image_url].present? ? image : no_image
+      user = User.find(declared_params[:user_id])
+      user.posts.create(declared_params.except(:user_id))
     end
 
     desc 'Publish post.'
