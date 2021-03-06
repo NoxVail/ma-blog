@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_28_200931) do
+ActiveRecord::Schema.define(version: 2021_03_03_150558) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -79,11 +79,13 @@ ActiveRecord::Schema.define(version: 2021_02_28_200931) do
     t.string "first_name"
     t.string "last_name"
     t.jsonb "personal_data"
-    t.string "password"
     t.string "email"
     t.date "birthday"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "crypted_password"
+    t.string "salt"
+    t.index ["email"], name: "index_users_on_email", unique: true
   end
 
   add_foreign_key "memberships", "groups"

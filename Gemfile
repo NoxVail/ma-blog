@@ -17,6 +17,8 @@ gem 'grape-entity'
 gem 'grape-swagger'
 gem 'devise'
 gem 'activeadmin'
+gem 'jwt'
+gem 'sorcery'
 gem 'bootsnap', '>= 1.4.4', require: false
 
 group :development, :test do
